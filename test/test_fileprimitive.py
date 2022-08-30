@@ -16,6 +16,7 @@ class TestFilePrimitive(unittest.TestCase):
     def tearDown(self) -> None:
         with suppress(FileNotFoundError):
             os.remove(WORKING_FILE)
+        with suppress(FileNotFoundError):
             os.remove(PLAIN_FILE)
 
     def test_encrypt_decrypt(self):
