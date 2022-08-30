@@ -6,11 +6,12 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-class Cipher:
-    def __init__(self) -> None:
-        pass
+class FilePrimitive:
+    def __init__(self, iteration:int=480000, salt_length:int=16) -> None:
+        self._iteration = iteration
+        self._salt_length = salt_length
 
-    def password_2_key(self, salt:bytes, password:str, iterations:int=480000)->bytes:
+    def secret_2_key(self, salt:bytes, secret:bytes, iterations:int=480000)->bytes:
         """
         It takes a salt and a password and returns a key for Fernet module
         
@@ -24,10 +25,9 @@ class Cipher:
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
-            iterations=480000,
+            iterations=self._iteration,
         )
-        password = bytes(password, "utf8")
-        key = base64.urlsafe_b64encode(kdf.derive(password))
+        key = base64.urlsafe_b64encode(kdf.derive(secret))
 
         return key
 
@@ -39,10 +39,10 @@ class Cipher:
         which is a secure random number generator
         :return: A random string of bytes that is encoded in base64.
         """
-        salt = _rand(16)
+        salt = _rand(self._salt_length)
         return base64.urlsafe_b64encode(salt)
 
-    def encrypt(self, password:str, data:bytes)->str:
+    def encrypt(self, secret:bytes, data:bytes)->str:
         """
         > It takes a password and some data, creates a salt, creates a key from the salt and password,
         encrypts the data with the key, and returns the salt and encrypted data in a JSON object.
@@ -54,7 +54,7 @@ class Cipher:
         :return: A JSON string containing the salt and the encrypted data.
         """
         salt = self.create_salt()
-        key = self.password_2_key(salt, password)
+        key = self.secret_2_key(salt, secret)
         
         f = Fernet(key)
         encrypted = f.encrypt(data)
@@ -66,7 +66,7 @@ class Cipher:
         return json.dumps(container, indent=4)
 
 
-    def decrypt(self, password:str, container_data:str)->str:
+    def decrypt(self, secret:bytes, container_data:str)->str:
         """
         > It takes a password and a container, and returns the plaintext
         
@@ -80,13 +80,13 @@ class Cipher:
         data = bytes(container["data"], "utf8")
         salt = bytes(container["salt"], "utf8")
 
-        key = self.password_2_key(salt, password)
+        key = self.secret_2_key(salt, secret)
         f = Fernet(key)
         plain = f.decrypt(data)
 
         return plain
 
-    def encrypt_file(self, password:str, infilename:str, outfilename:str)->None:
+    def encrypt_file(self, secret:bytes, infilename:str, outfilename:str)->None:
         """
         It opens the file, reads the contents, encrypts the contents, and writes the encrypted contents
         to a file
@@ -102,7 +102,7 @@ class Cipher:
         with open(infilename, "rb") as f:
             plain = f.read()
 
-        container = self.encrypt(password, plain)
+        container = self.encrypt(secret, plain)
 
         if outfilename is None:
             print(container)
@@ -110,7 +110,7 @@ class Cipher:
             with open(outfilename, "w") as f:
                 f.write(container)
 
-    def decrypt_file(self, password:str, infilename:str, outfilename:str)->None:
+    def decrypt_file(self, secret:bytes, infilename:str, outfilename:str)->None:
         """
         It decrypts a file.
         
@@ -125,7 +125,7 @@ class Cipher:
         with open(infilename, "r") as f:
             container = f.read()
 
-        plain = self.decrypt(password, container)
+        plain = self.decrypt(secret, container)
 
         if outfilename is None:
             print(plain)
@@ -133,7 +133,7 @@ class Cipher:
             with open(outfilename, "wb") as f:
                 f.write(plain)
 
-    def verify_file(self, password:str, infilename:str)->bool:
+    def verify_file(self, secret:bytes, infilename:str)->bool:
         """
         > It opens the file, reads the contents, and then tries to decrypt it. If it can decrypt it, it
         returns True. If it can't decrypt it, it returns False
@@ -148,7 +148,7 @@ class Cipher:
         with open(infilename, "rb") as f:
             container = f.read()
         try:
-            plain = self.decrypt(password, container)
+            plain = self.decrypt(secret, container)
             return True
         except:
             return False
