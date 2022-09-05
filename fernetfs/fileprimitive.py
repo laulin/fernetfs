@@ -7,11 +7,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 class FilePrimitive:
-    def __init__(self, iteration:int=480000, salt_length:int=16) -> None:
+    def __init__(self, secret:bytes, iteration:int=480000, salt_length:int=16) -> None:
         self._iteration = iteration
         self._salt_length = salt_length
+        self._secret = secret
 
-    def secret_2_key(self, salt:bytes, secret:bytes, iterations:int=480000)->bytes:
+    def secret_2_key(self, salt:bytes, secret:bytes)->bytes:
         """
         It takes a salt and a password and returns a key for Fernet module
         
@@ -42,7 +43,7 @@ class FilePrimitive:
         salt = _rand(self._salt_length)
         return base64.urlsafe_b64encode(salt)
 
-    def encrypt(self, secret:bytes, data:bytes)->str:
+    def encrypt(self, data:bytes)->str:
         """
         > It takes a password and some data, creates a salt, creates a key from the salt and password,
         encrypts the data with the key, and returns the salt and encrypted data in a JSON object.
@@ -54,7 +55,7 @@ class FilePrimitive:
         :return: A JSON string containing the salt and the encrypted data.
         """
         salt = self.create_salt()
-        key = self.secret_2_key(salt, secret)
+        key = self.secret_2_key(salt, self._secret)
         
         f = Fernet(key)
         encrypted = f.encrypt(data)
@@ -66,7 +67,7 @@ class FilePrimitive:
         return json.dumps(container, indent=4)
 
 
-    def decrypt(self, secret:bytes, container_data:str)->str:
+    def decrypt(self, container_data:str)->str:
         """
         > It takes a password and a container, and returns the plaintext
         
@@ -80,13 +81,13 @@ class FilePrimitive:
         data = bytes(container["data"], "utf8")
         salt = bytes(container["salt"], "utf8")
 
-        key = self.secret_2_key(salt, secret)
+        key = self.secret_2_key(salt, self._secret)
         f = Fernet(key)
         plain = f.decrypt(data)
 
         return plain
 
-    def encrypt_file(self, secret:bytes, infilename:str, outfilename:str)->None:
+    def encrypt_file(self, infilename:str, outfilename:str)->None:
         """
         It opens the file, reads the contents, encrypts the contents, and writes the encrypted contents
         to a file
@@ -102,7 +103,7 @@ class FilePrimitive:
         with open(infilename, "rb") as f:
             plain = f.read()
 
-        container = self.encrypt(secret, plain)
+        container = self.encrypt(plain)
 
         if outfilename is None:
             print(container)
@@ -110,7 +111,7 @@ class FilePrimitive:
             with open(outfilename, "w") as f:
                 f.write(container)
 
-    def decrypt_file(self, secret:bytes, infilename:str, outfilename:str)->None:
+    def decrypt_file(self, infilename:str, outfilename:str)->None:
         """
         It decrypts a file.
         
@@ -125,7 +126,7 @@ class FilePrimitive:
         with open(infilename, "r") as f:
             container = f.read()
 
-        plain = self.decrypt(secret, container)
+        plain = self.decrypt(container)
 
         if outfilename is None:
             print(plain)
@@ -133,7 +134,7 @@ class FilePrimitive:
             with open(outfilename, "wb") as f:
                 f.write(plain)
 
-    def verify_file(self, secret:bytes, infilename:str)->bool:
+    def verify_file(self, infilename:str)->bool:
         """
         > It opens the file, reads the contents, and then tries to decrypt it. If it can decrypt it, it
         returns True. If it can't decrypt it, it returns False
@@ -148,7 +149,7 @@ class FilePrimitive:
         with open(infilename, "rb") as f:
             container = f.read()
         try:
-            plain = self.decrypt(secret, container)
+            plain = self.decrypt(container)
             return True
         except:
             return False

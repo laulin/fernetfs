@@ -20,9 +20,9 @@ class TestFilePrimitive(unittest.TestCase):
             os.remove(PLAIN_FILE)
 
     def test_encrypt_decrypt(self):
-        fp = FilePrimitive(ITERATIONS)
-        encrypted = fp.encrypt(SECRET, b"hello")
-        result = fp.decrypt(SECRET, encrypted)
+        fp = FilePrimitive(SECRET, ITERATIONS)
+        encrypted = fp.encrypt(b"hello")
+        result = fp.decrypt(encrypted)
         expected = b"hello"
 
         self.assertEqual(result, expected)
@@ -31,10 +31,10 @@ class TestFilePrimitive(unittest.TestCase):
         with open(PLAIN_FILE, "wb") as f:
             f.write(b"hello")
 
-        fp = FilePrimitive(ITERATIONS)
-        fp.encrypt_file(SECRET, PLAIN_FILE, WORKING_FILE)
+        fp = FilePrimitive(SECRET, ITERATIONS)
+        fp.encrypt_file(PLAIN_FILE, WORKING_FILE)
         os.remove(PLAIN_FILE)
-        fp.decrypt_file(SECRET, WORKING_FILE, PLAIN_FILE)
+        fp.decrypt_file(WORKING_FILE, PLAIN_FILE)
 
         with open(PLAIN_FILE, "rb") as f:
             result = f.read()
