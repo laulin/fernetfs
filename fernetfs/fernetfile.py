@@ -3,12 +3,12 @@ import logging
 
 from fernetfs.fileprimitive import FilePrimitive
 
-class FernetRAMFile:
+class FernetFile:
     def __init__(self, filename:str, secret:bytes, mode:str, iterations:int=480000, salt_size=16):
         self._filename = filename
         self._mode = mode
         self._primitives = FilePrimitive(secret, iterations, salt_size)
-        self._log = logging.getLogger(f"FernetRAMFile({filename})")
+        self._log = logging.getLogger(f"FernetFile({filename})")
         self._data = None
 
     def __enter__(self):

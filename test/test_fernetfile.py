@@ -3,7 +3,7 @@ import os
 from contextlib import suppress
 import logging 
 
-from fernetfs.fernetramfile import FernetRAMFile
+from fernetfs.fernetfile import FernetFile
 
 WORKING_FILE = "/tmp/test.x"
 SECRET = b"secret"
@@ -19,28 +19,28 @@ class TestFernetFile(unittest.TestCase):
             os.remove(WORKING_FILE)
 
     def test_write_utf8(self):
-        with FernetRAMFile(WORKING_FILE, SECRET, "w", ITERATIONS) as f:
+        with FernetFile(WORKING_FILE, SECRET, "w", ITERATIONS) as f:
             f.write("Hello")
 
     def test_write_bytes(self):
-        with FernetRAMFile(WORKING_FILE, SECRET, "wb", ITERATIONS) as f:
+        with FernetFile(WORKING_FILE, SECRET, "wb", ITERATIONS) as f:
             f.write(b"Hello")
 
     def test_write_read_utf8(self):
-        with FernetRAMFile(WORKING_FILE, SECRET, "w", ITERATIONS) as f:
+        with FernetFile(WORKING_FILE, SECRET, "w", ITERATIONS) as f:
             f.write("Hello")
 
-        with FernetRAMFile(WORKING_FILE, SECRET, "r", ITERATIONS) as f:
+        with FernetFile(WORKING_FILE, SECRET, "r", ITERATIONS) as f:
             result = f.read()
 
         expected = "Hello"
         self.assertEqual(result, expected)
 
     def test_write_read_bytes(self):
-        with FernetRAMFile(WORKING_FILE, SECRET, "wb", ITERATIONS) as f:
+        with FernetFile(WORKING_FILE, SECRET, "wb", ITERATIONS) as f:
             f.write(b"Hello")
 
-        with FernetRAMFile(WORKING_FILE, SECRET, "rb", ITERATIONS) as f:
+        with FernetFile(WORKING_FILE, SECRET, "rb", ITERATIONS) as f:
             result = f.read()
 
         expected = b"Hello"
