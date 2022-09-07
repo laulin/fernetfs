@@ -5,7 +5,7 @@ import os.path
 import json
 import shutil
 
-from fernetfs.fernetfile import FilePrimitive
+from fernetfs.file import FilePrimitive
 
 class Directory:
     HASH_RANDOM_SIZE = 32

@@ -12,7 +12,7 @@ ITERATIONS = 100
 
 logging.basicConfig(level=logging.DEBUG)
 
-class TestFernetFile(unittest.TestCase):
+class TestFile(unittest.TestCase):
     def setUp(self) -> None:
         os.mkdir(WORKING_DIR)
 

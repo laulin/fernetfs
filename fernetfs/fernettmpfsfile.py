@@ -6,7 +6,7 @@ import time
 
 import inotify.adapters
 
-from fernetfs.fernetfile import FilePrimitive
+from fernetfs.file import FilePrimitive
 
 RAMFS = "/dev/shm"
 
