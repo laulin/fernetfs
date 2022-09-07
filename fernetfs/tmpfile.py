@@ -6,11 +6,11 @@ import time
 
 import inotify.adapters
 
-from fernetfs.file import FilePrimitive
+from fernetfs.fileprimitive import FilePrimitive
 
 RAMFS = "/dev/shm"
 
-class FernetTmpFSFile:
+class TmpFile:
     def __init__(self, secret:bytes, filename:str, editor:str, iterations:int=480000, salt_size=16):
         """
         `__init__` is a function that takes in a secret, a filename, an editor, and two optional
@@ -32,7 +32,7 @@ class FernetTmpFSFile:
         self._primitives = FilePrimitive(secret, iterations, salt_size)
         self._filename = filename
         self._editor = editor
-        self._log = logging.getLogger(f"FernetTmpFSFile({filename})")
+        self._log = logging.getLogger(f"TmpFile({filename})")
 
         self._running = False
 
@@ -129,6 +129,6 @@ class FernetTmpFSFile:
             self.encrypt(path)
             
         except Exception as e:
-            print(f"Something failed : {e}")
+            self._log.error(f"Something failed : {e}")
         finally:
             os.unlink(path)
