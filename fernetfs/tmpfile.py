@@ -6,7 +6,7 @@ import time
 
 import inotify.adapters
 
-from fernetfs.fileprimitive import FilePrimitive
+from fernetfs.primitives import Primitives
 
 RAMFS = "/dev/shm"
 
@@ -29,7 +29,7 @@ class TmpFile:
         defaults to 16 (optional)
         """
         
-        self._primitives = FilePrimitive(secret, iterations, salt_size)
+        self._primitives = Primitives(secret, iterations, salt_size)
         self._filename = filename
         self._editor = editor
         self._log = logging.getLogger(f"TmpFile({filename})")

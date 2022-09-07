@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-class FilePrimitive:
+class Primitives:
     def __init__(self, secret:bytes, iteration:int=480000, salt_length:int=16) -> None:
         self._iteration = iteration
         self._salt_length = salt_length

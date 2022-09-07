@@ -5,13 +5,13 @@ import os.path
 import json
 import shutil
 
-from fernetfs.file import FilePrimitive
+from fernetfs.file import Primitives
 
 class Directory:
     HASH_RANDOM_SIZE = 32
 
     def __init__(self, secret:bytes, root_path:str, iterations:int=480000, salt_size=16) -> None:
-        self._primitives = FilePrimitive(secret, iterations, salt_size)
+        self._primitives = Primitives(secret, iterations, salt_size)
         self._log = logging.getLogger(f"Directory({root_path})")
         self._root_path = root_path
 

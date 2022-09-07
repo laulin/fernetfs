@@ -3,7 +3,7 @@ import os
 from contextlib import suppress
 import logging 
 
-from fernetfs.fileprimitive import FilePrimitive
+from fernetfs.primitives import Primitives
 
 WORKING_FILE = "/tmp/test.x"
 PLAIN_FILE = "/tmp/test.bin"
@@ -12,7 +12,7 @@ ITERATIONS = 100
 
 #logging.basicConfig(level=logging.DEBUG)
 
-class TestFilePrimitive(unittest.TestCase):
+class TestPrimitives(unittest.TestCase):
     def tearDown(self) -> None:
         with suppress(FileNotFoundError):
             os.remove(WORKING_FILE)
@@ -20,7 +20,7 @@ class TestFilePrimitive(unittest.TestCase):
             os.remove(PLAIN_FILE)
 
     def test_encrypt_decrypt(self):
-        fp = FilePrimitive(SECRET, ITERATIONS)
+        fp = Primitives(SECRET, ITERATIONS)
         encrypted = fp.encrypt(b"hello")
         result = fp.decrypt(encrypted)
         expected = b"hello"
@@ -31,7 +31,7 @@ class TestFilePrimitive(unittest.TestCase):
         with open(PLAIN_FILE, "wb") as f:
             f.write(b"hello")
 
-        fp = FilePrimitive(SECRET, ITERATIONS)
+        fp = Primitives(SECRET, ITERATIONS)
         fp.encrypt_file(PLAIN_FILE, WORKING_FILE)
         os.remove(PLAIN_FILE)
         fp.decrypt_file(WORKING_FILE, PLAIN_FILE)

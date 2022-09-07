@@ -1,13 +1,13 @@
 import io
 import logging
 
-from fernetfs.fileprimitive import FilePrimitive
+from fernetfs.primitives import Primitives
 
 class File:
     def __init__(self, filename:str, secret:bytes, mode:str, iterations:int=480000, salt_size=16):
         self._filename = filename
         self._mode = mode
-        self._primitives = FilePrimitive(secret, iterations, salt_size)
+        self._primitives = Primitives(secret, iterations, salt_size)
         self._log = logging.getLogger(f"File({filename})")
         self._data = None
 
