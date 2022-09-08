@@ -11,7 +11,7 @@ from fernetfs.listing import ListingDirectory
 class Directory:
     def __init__(self, secret:bytes, root_path:str, iterations:int=480000, salt_size=16) -> None:
         self._primitives = Primitives(secret, iterations, salt_size)
-        self._log = logging.getLogger(f"Directory({root_path})")
+        self._log = logging.getLogger(f"{self.__class__.__name__}({root_path})")
         self._root_path = root_path
         self._listing = ListingDirectory(secret, root_path, iterations, salt_size)
 
