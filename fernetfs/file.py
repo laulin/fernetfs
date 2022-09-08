@@ -1,7 +1,6 @@
 import logging
 import os.path
 import os
-import glob
 
 from fernetfs.basicfile import BasicFile
 from fernetfs.primitives import Primitives
