@@ -68,7 +68,7 @@ class BasicFile:
 
     def _close_write_file(self):
         data = self._data.getvalue()
-        self._log.debug(f"Data len : {len(data)}")
+        self._log.debug(f"Data length : {len(data)}")
 
         if "b" not in self._mode:
             data = bytes(data, "utf8")
@@ -76,4 +76,5 @@ class BasicFile:
         container_data = self._primitives.encrypt(data)
 
         with open(self._filename, f"w") as f:
+            self._log.debug(f"Write {len(container_data)} bytes to {self._filename}")
             f.write(container_data)

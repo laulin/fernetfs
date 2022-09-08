@@ -26,7 +26,10 @@ class Listing:
             encrypted_listing = f.read()
 
         listing = self._primitives.decrypt(encrypted_listing)
-        return json.loads(listing)
+        output = json.loads(listing)
+
+        self._log.debug(f"Read from {self._path} with {len(output)} entries")
+        return output
 
     def write(self, listing:dict):
         json_listing = bytes(json.dumps(listing), "utf8")
@@ -34,6 +37,8 @@ class Listing:
 
         with open(self._path, "w") as f:
             f.write(encrypted_listing)
+
+        self._log.debug(f"Write to {self._path} with {len(listing)} entries")
 
     def get(self)->dict:
         if self.exists():
@@ -46,6 +51,8 @@ class Listing:
     def add(self, key:str, source:dict)->dict:
         hash_name = sha256(os.getrandom(Listing.HASH_RANDOM_SIZE)).hexdigest()
         source[key] = hash_name
+        self._log.debug(f"Add to {key} as {hash_name}")
+
         return source
 
     def remove(self):
