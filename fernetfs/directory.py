@@ -6,69 +6,38 @@ import json
 import shutil
 
 from fernetfs.file import Primitives
+from fernetfs.listing import ListingDirectory
 
 class Directory:
-    HASH_RANDOM_SIZE = 32
-
     def __init__(self, secret:bytes, root_path:str, iterations:int=480000, salt_size=16) -> None:
         self._primitives = Primitives(secret, iterations, salt_size)
         self._log = logging.getLogger(f"Directory({root_path})")
         self._root_path = root_path
-
-    def is_directories_list(self)->bool:
-        path = os.path.join(self._root_path, ".directory")
-        return os.path.exists(path)
-
-    def create_directories_list(self):
-        self.write_directories_list({})
-
-    def read_directories_list(self):
-        path = os.path.join(self._root_path, ".directory")
-        with open(path, "r") as f:
-            encrypted_listing = f.read()
-
-        listing = self._primitives.decrypt(encrypted_listing)
-        return json.loads(listing)
-
-    def write_directories_list(self, listing:dict):
-        json_listing = bytes(json.dumps(listing), "utf8")
-        encrypted_listing = self._primitives.encrypt(json_listing)
-        path = os.path.join(self._root_path, ".directory")
-
-        with open(path, "w") as f:
-            f.write(encrypted_listing)
-
-    def get_directories_list(self)->dict:
-        if self.is_directories_list():
-            listing = self.read_directories_list()
-        else:
-            listing = {}
-
-        return listing
+        self._listing = ListingDirectory(secret, root_path, iterations, salt_size)
 
     def mkdir(self, name:str)->str:
-        listing = self.get_directories_list()
+        listing = self._listing.get()
 
         if name in listing:
             raise OSError(f"Directory {name} already exists")
 
-        hash_name = sha256(os.getrandom(Directory.HASH_RANDOM_SIZE)).hexdigest()
+        listing = self._listing.add(name, listing)
 
-        listing[name] = hash_name
+        hash_name = listing[name]
 
         full_hash_name = os.path.join(self._root_path, hash_name)
         os.mkdir(full_hash_name)
         self._log.debug(f"Create directory {name} -> {full_hash_name}")
-        self.write_directories_list(listing)
+        self._listing.write(listing)
         return hash_name
 
     def lsdir(self)->list:
-        listing = self.get_directories_list()
+        listing = self._listing.get()
 
         return list(listing.keys())
 
     def gethash(self, name:str)->str:
-        listing = self.get_directories_list()
+        listing = self._listing.get()
 
         if name not in listing:
             raise Exception(f"No directory named {name}")
@@ -78,14 +47,14 @@ class Directory:
         return hash_name
 
     def exists(self, name:str)->bool:
-        listing = self.get_directories_list()
+        listing = self._listing.get()
 
         if name not in listing:
             return False
         return True
 
     def rm(self, name, recursive=False)->None:
-        listing = self.get_directories_list()
+        listing = self._listing.get()
 
         if name not in listing:
             raise Exception(f"No directory named {name}")
@@ -100,9 +69,7 @@ class Directory:
         del listing[name]
 
         if len(listing) > 0:
-            self.write_directories_list(listing)
+            self._listing.write(listing)
         else:
-            self._log.debug(f"Remove .directory in {self._root_path}")
-            path = os.path.join(self._root_path, ".directory")
-            os.remove(path)
+            self._listing.remove()
         

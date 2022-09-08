@@ -19,29 +19,6 @@ class TestFile(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(WORKING_DIR)
 
-    def test_create_directory_listing(self):
-        directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
-
-        directory.create_directories_list()
-
-    def test_read_directory_listing(self)->dict:
-        directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
-
-        directory.create_directories_list()
-        result = directory.read_directories_list()
-        expected = {}
-
-        self.assertEqual(result, expected)
-
-    def test_write_read_directory_listing(self)->dict:
-        directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
-
-        directory.write_directories_list({"key":"value"})
-        result = directory.read_directories_list()
-        expected = {"key":"value"}
-
-        self.assertEqual(result, expected)
-
     def test_mkdir(self)->dict:
         directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
 
