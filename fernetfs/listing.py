@@ -4,7 +4,7 @@ import os.path
 import json
 from hashlib import sha256
 
-from fernetfs.file import Primitives
+from fernetfs.primitives import Primitives
 
 class Listing:
     HASH_RANDOM_SIZE = 32

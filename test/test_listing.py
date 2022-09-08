@@ -3,7 +3,6 @@ import os
 import shutil
 import logging
 import os.path
-from unittest import result
 
 from fernetfs.listing import ListingDirectory
 

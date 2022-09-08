@@ -5,7 +5,7 @@ import os.path
 import json
 import shutil
 
-from fernetfs.file import Primitives
+from fernetfs.primitives import Primitives
 from fernetfs.listing import ListingDirectory
 
 class Directory:
