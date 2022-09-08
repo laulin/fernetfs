@@ -45,12 +45,10 @@ class TestFile(unittest.TestCase):
     def test_write_read(self)->dict:
         file = File(SECRET, WORKING_DIR, ITERATIONS)
 
-        tmp = file.open("foobar.txt", "w")
-        with tmp as f:
+        with file.open("foobar.txt", "w") as f:
             f.write("test")
        
-        tmp = file.open("foobar.txt", "r")
-        with tmp as f:
+        with file.open("foobar.txt", "r") as f:
             result = f.read()
 
         expected = "test"
@@ -118,6 +116,33 @@ class TestFile(unittest.TestCase):
         result = list(glob(WORKING_DIR + "/*"))
 
         self.assertEqual(result, [])
+
+    def test_open_in_ram_echo(self)->dict:
+        file = File(SECRET, WORKING_DIR, ITERATIONS)
+
+        file.open_in_ram("foobar.txt", 'echo "test" >')
+
+        with file.open("foobar.txt", "r") as f:
+            result = f.read()
+
+        expected = "test\n"
+
+        self.assertEqual(result, expected)
+
+    def test_open_in_ram_sed(self)->dict:
+        file = File(SECRET, WORKING_DIR, ITERATIONS)
+
+        with file.open("foobar.txt", "w") as f:
+            f.write("read_ko")
+
+        file.open_in_ram("foobar.txt", 'sed -i s/ko/ok/g')
+
+        with file.open("foobar.txt", "r") as f:
+            result = f.read()
+
+        expected = "read_ok"
+
+        self.assertEqual(result, expected)
         
 
 

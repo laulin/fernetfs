@@ -6,6 +6,7 @@ import glob
 from fernetfs.basicfile import BasicFile
 from fernetfs.primitives import Primitives
 from fernetfs.listing import ListingFile
+from fernetfs.tmpfile import TmpFile
 
 
 class File():
@@ -39,6 +40,20 @@ class File():
         self._listing.write(listing)
         
         return file
+
+    def open_in_ram(self, filename:str, command:str)->TmpFile:
+        listing = self._listing.get()
+
+        if filename not in listing:
+            self._log.debug("Creating empty file of RAM file")
+            with self.open(filename, "wb") as f:
+                f.write(b"")
+            listing = self._listing.get()
+            
+        hash_name = listing[filename]
+        path = os.path.join(self._root_path, hash_name)
+        file = TmpFile(self._secret, path, command, self._iterations, self._salt_size)
+        file.run()
 
     def ls(self)->list:
         listing = self._listing.get()

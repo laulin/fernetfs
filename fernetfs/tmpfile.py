@@ -43,7 +43,7 @@ class TmpFile:
         :return: The decrypted data.
         """
 
-        self._log.debug("decrypt")
+        self._log.debug("Decrypt")
         
         with open(self._filename, "rb") as f:
             container = f.read()
@@ -60,7 +60,7 @@ class TmpFile:
         :type path: str
         """
         
-        self._log.debug("encrypt")
+        self._log.debug("Encrypt")
 
         with open(path, "rb") as f:
             plain = f.read()
@@ -110,25 +110,30 @@ class TmpFile:
 
         try:
             fd, path = mkstemp(dir=RAMFS, suffix=".plain")
+            self._log.debug(f"Create RAM file {path}")
             with os.fdopen(fd, 'wb') as f:
                 f.write(decrypted)
                 f.flush()
+                self._log.debug(f"Add plain data to RAM file {path}")
 
                 # Run a thread that monitor file change.
                 # This way, modification are automatically write back to the encrypted file
                 self._running = True
                 write_back_thread = Thread(target=self.write_back, args=(path,))
                 write_back_thread.start()
+                self._log.debug(f"inotify is running")
 
-                self._log.debug(f"{self._editor} {path}")
-                print(f"{self._editor} {path}")
+                self._log.debug(f"Running command '{self._editor} {path}'")
                 os.system(f"{self._editor} {path}")
                 # stopping the write back thread
+                self._log.debug(f"End of command '{self._editor} {path}'")
                 self._running = False
 
             self.encrypt(path)
+            self._log.debug(f"Encrypted write back")
             
         except Exception as e:
             self._log.error(f"Something failed : {e}")
         finally:
             os.unlink(path)
+            self._log.debug(f"Unkink RAM file {path}")
