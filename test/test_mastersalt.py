@@ -1,10 +1,8 @@
-from glob import glob
 import unittest
 import os
 import shutil
 import logging
 import os.path
-from venv import create
 
 from fernetfs.mastersalt import MasterSalt
 
