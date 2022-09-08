@@ -24,11 +24,11 @@ class TestFile(unittest.TestCase):
 
         directory.mkdir("foobar")
 
-    def test_lsdir(self)->dict:
+    def test_ls(self)->dict:
         directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
 
         directory.mkdir("foobar")
-        result = directory.lsdir()
+        result = directory.ls()
 
         expected = ["foobar"]
         self.assertEqual(result, expected)
@@ -62,7 +62,7 @@ class TestFile(unittest.TestCase):
         directory.mkdir("foobar")
         directory.rm("foobar")
 
-        result = directory.lsdir()
+        result = directory.ls()
 
         expected = []
         self.assertEqual(result, expected)

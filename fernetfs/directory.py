@@ -31,7 +31,7 @@ class Directory:
         self._listing.write(listing)
         return hash_name
 
-    def lsdir(self)->list:
+    def ls(self)->list:
         listing = self._listing.get()
 
         return list(listing.keys())
