@@ -45,4 +45,9 @@ class TestFile(unittest.TestCase):
 
         expected = b"Hello"
         self.assertEqual(result, expected)
+
+    def test_append_utf8(self):
+        with BasicFile(WORKING_FILE, SECRET, "a", ITERATIONS) as f:
+            f.write("Hello")
+
         

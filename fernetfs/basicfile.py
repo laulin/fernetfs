@@ -29,23 +29,29 @@ class BasicFile:
             return self._open_file_write()
         elif "a" in self._mode :
             self._log.debug("Open with a")
-            return self._open_file_read()
+            return self._open_file_read(append=True)
 
-    def _open_file_read(self):
+    def _open_file_read(self, append:bool=False):
         if "b" in self._mode:
             buffer = io.BytesIO
         else:
             buffer = io.StringIO
 
-        with open(self._filename, f"r") as f:
-            container_data = f.read()
-            
-            plain = self._primitives.decrypt(container_data)
+        try:
+            with open(self._filename, f"r") as f:
+                container_data = f.read()
+                
+                plain = self._primitives.decrypt(container_data)
 
-            if "b" not in self._mode:
-                plain = str(plain, "utf8")
+                if "b" not in self._mode:
+                    plain = str(plain, "utf8")
+        except Exception as e:
+            if not append:
+                raise e
+            else:
+                plain = ""
 
-            self._data = buffer(plain)
+        self._data = buffer(plain)
 
     def _open_file_write(self):
         if "b" in self._mode:
