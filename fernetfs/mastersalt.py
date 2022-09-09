@@ -12,6 +12,8 @@ class MasterSalt:
         self._log = logging.getLogger(f"MasterSalt({root_path})")
         self._listing = Listing(secret, root_path, MasterSalt.FILENAME, iterations, salt_size)
 
+        self._cache = None
+
     def exists(self)->bool:
         return self._listing.exists()
 
@@ -26,9 +28,14 @@ class MasterSalt:
         self._listing.write(salt_structure)
         self._log.debug(f"Create salt : {salt_structure['salt']}")
 
+        self._cache = salt
+
         return salt_structure
 
     def get(self)->dict:
+        if self._cache is not None:
+            return self._cache
+
         if self.exists():
             salt_structure = self._listing.read()
             self._log.debug(f"Read existing salt : {salt_structure['salt']}")
@@ -36,4 +43,6 @@ class MasterSalt:
             salt_structure = self.create()
             self._log.debug(f"Read created salt : {salt_structure['salt']}")
 
-        return base64.urlsafe_b64decode(salt_structure["salt"])
+        self._cache = base64.urlsafe_b64decode(salt_structure["salt"])
+
+        return self._cache
