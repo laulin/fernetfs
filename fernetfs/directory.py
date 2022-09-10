@@ -7,6 +7,7 @@ import shutil
 
 from fernetfs.primitives import Primitives
 from fernetfs.listing import ListingDirectory
+from fernetfs.file  import File
 
 class Directory:
     def __init__(self, secret:bytes, root_path:str, iterations:int=480000, salt_size=16) -> None:
@@ -14,6 +15,7 @@ class Directory:
         self._log = logging.getLogger(f"{self.__class__.__name__}({root_path})")
         self._root_path = root_path
         self._listing = ListingDirectory(secret, root_path, iterations, salt_size)
+        self._file = File(secret, root_path, iterations, salt_size)
 
     def mkdir(self, name:str)->str:
         listing = self._listing.get()
@@ -72,4 +74,7 @@ class Directory:
             self._listing.write(listing)
         else:
             self._listing.remove()
+    
+    def get_file(self)->File:
+        return self._file
         
