@@ -144,6 +144,20 @@ class TestFile(unittest.TestCase):
 
         self.assertEqual(result, expected)
         
+    def test_write_read_in_dir(self)->dict:
+        file = File(SECRET, WORKING_DIR, ITERATIONS)
+
+        new_path = os.path.join(WORKING_DIR, "my_dir")
+        os.mkdir(new_path)
+
+        try:
+            with file.open("my_dir/foobar.txt", "w") as f:
+                f.write("test")
+            self.assertTrue(False)
+        except Exception:
+            pass
+
+        
 
 
     

@@ -19,8 +19,16 @@ class File():
         self._iterations = iterations
         self._salt_size = salt_size
 
+    def check_path(self, path:str)->None:
+        head, _ = os.path.split(path)
+
+        if head != "" :
+            raise Exception("File must be in the current directory")
+
     def open(self, filename:str, mode:str)->BasicFile:
         listing = self._listing.get()
+
+        self.check_path(filename)
 
         if filename not in listing:
             if "r" in mode:
@@ -43,6 +51,8 @@ class File():
     def open_in_ram(self, filename:str, command:str)->TmpFile:
         listing = self._listing.get()
 
+        self.check_path(filename)
+
         if filename not in listing:
             self._log.debug("Creating empty file of RAM file")
             with self.open(filename, "wb") as f:
@@ -60,6 +70,8 @@ class File():
 
     def exists(self, filename:str)->bool:
         listing = self._listing.get()
+
+        self.check_path(filename)
 
         if filename not in listing:
             self._log.debug(f"File {filename} in not in listing")
@@ -79,6 +91,8 @@ class File():
 
     def rm(self, filename:str)->None:
         listing = self._listing.get()
+
+        self.check_path(filename)
 
         if not self.exists(filename):
             raise Exception(f"No file named {filename}")
