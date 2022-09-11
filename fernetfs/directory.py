@@ -91,4 +91,7 @@ class Directory:
     
     def get_file(self)->File:
         return self._file
+
+    def cwd(self):
+        return self._root_path
         
