@@ -1,8 +1,6 @@
 import logging
-from hashlib import sha256
 import os
 import os.path
-import json
 import shutil
 
 from fernetfs.primitives import Primitives
