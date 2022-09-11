@@ -8,9 +8,9 @@ from fernetfs.listing import Listing
 class MasterSalt:
     FILENAME = ".salt"
     MASTER_SALT_SIZE = 128
-    def __init__(self, secret:bytes, root_path:str, iterations:int=480000, salt_size=16) -> None:
-        self._log = logging.getLogger(f"MasterSalt({root_path})")
-        self._listing = Listing(secret, root_path, MasterSalt.FILENAME, iterations, salt_size)
+    def __init__(self, secret:bytes, current_working_directory:str, iterations:int=480000, salt_size=16) -> None:
+        self._log = logging.getLogger(f"MasterSalt({current_working_directory})")
+        self._listing = Listing(secret, current_working_directory, MasterSalt.FILENAME, iterations, salt_size)
 
         self._cache = None
 

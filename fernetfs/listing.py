@@ -8,11 +8,11 @@ from fernetfs.primitives import Primitives
 
 class Listing:
     HASH_RANDOM_SIZE = 32
-    def __init__(self, secret:bytes, root_path:str, name:str, iterations:int=480000, salt_size=16) -> None:
+    def __init__(self, secret:bytes, current_working_directory:str, name:str, iterations:int=480000, salt_size=16) -> None:
         self._primitives = Primitives(secret, iterations, salt_size)
-        self._log = logging.getLogger(f"Listing({name} @ {root_path})")
-        self._root_path = root_path
-        self._path = os.path.join(self._root_path, name)
+        self._log = logging.getLogger(f"Listing({name} @ {current_working_directory})")
+        self._current_working_directory = current_working_directory
+        self._path = os.path.join(self._current_working_directory, name)
 
     def exists(self)->bool:
         return os.path.exists(self._path)
@@ -59,9 +59,9 @@ class Listing:
         os.remove(self._path)
 
 class ListingDirectory(Listing):
-    def __init__(self, secret: bytes, root_path: str, iterations: int = 480000, salt_size=16) -> None:
-        super().__init__(secret, root_path, ".directories", iterations, salt_size)
+    def __init__(self, secret: bytes, current_working_directory: str, iterations: int = 480000, salt_size=16) -> None:
+        super().__init__(secret, current_working_directory, ".directories", iterations, salt_size)
 
 class ListingFile(Listing):
-    def __init__(self, secret: bytes, root_path: str, iterations: int = 480000, salt_size=16) -> None:
-        super().__init__(secret, root_path, ".files", iterations, salt_size)
+    def __init__(self, secret: bytes, current_working_directory: str, iterations: int = 480000, salt_size=16) -> None:
+        super().__init__(secret, current_working_directory, ".files", iterations, salt_size)

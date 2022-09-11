@@ -9,11 +9,11 @@ from fernetfs.tmpfile import TmpFile
 
 
 class File():
-    def __init__(self, secret: bytes, root_path: str, iterations: int = 480000, salt_size=16):
-        self._root_path = root_path
+    def __init__(self, secret: bytes, current_working_directory: str, iterations: int = 480000, salt_size=16):
+        self._current_working_directory = current_working_directory
         self._primitives = Primitives(secret, iterations, salt_size)
-        self._log = logging.getLogger(f"File({root_path})")
-        self._listing = ListingFile(secret, root_path, iterations, salt_size)
+        self._log = logging.getLogger(f"File({current_working_directory})")
+        self._listing = ListingFile(secret, current_working_directory, iterations, salt_size)
 
         self._secret = secret
         self._iterations = iterations
@@ -37,7 +37,7 @@ class File():
                 listing = self._listing.add(filename, listing)
 
         hash_name = listing[filename]
-        path = os.path.join(self._root_path, hash_name)
+        path = os.path.join(self._current_working_directory, hash_name)
         self._log.debug(f"Opening {filename} ({path}) in '{mode}' mode")
 
         if "r" in mode and not self.exists(filename):
@@ -60,7 +60,7 @@ class File():
             listing = self._listing.get()
             
         hash_name = listing[filename]
-        path = os.path.join(self._root_path, hash_name)
+        path = os.path.join(self._current_working_directory, hash_name)
         file = TmpFile(self._secret, path, command, self._iterations, self._salt_size)
         file.run()
 
@@ -78,7 +78,7 @@ class File():
             return False
         
         hash_name = listing[filename]
-        path = os.path.join(self._root_path, hash_name)
+        path = os.path.join(self._current_working_directory, hash_name)
 
         # prevent Inconsistent between listinges and files
         if not os.path.exists(path):
@@ -100,7 +100,7 @@ class File():
             raise Exception(f"No file named {filename}")
 
         hash_name = listing[filename]
-        path = os.path.join(self._root_path, hash_name)
+        path = os.path.join(self._current_working_directory, hash_name)
 
         os.remove(path)
 

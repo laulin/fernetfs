@@ -9,11 +9,11 @@ from fernetfs.primitives import Primitives
 from fernetfs.listing import ListingDirectory
 
 class Directory:
-    def __init__(self, secret:bytes, root_path:str, iterations:int=480000, salt_size=16) -> None:
+    def __init__(self, secret:bytes, current_working_directory:str, iterations:int=480000, salt_size=16) -> None:
         self._primitives = Primitives(secret, iterations, salt_size)
-        self._log = logging.getLogger(f"{self.__class__.__name__}({root_path})")
-        self._root_path = root_path
-        self._listing = ListingDirectory(secret, root_path, iterations, salt_size)
+        self._log = logging.getLogger(f"{self.__class__.__name__}({current_working_directory})")
+        self._current_working_directory = current_working_directory
+        self._listing = ListingDirectory(secret, current_working_directory, iterations, salt_size)
 
     def check_path(self, path:str)->None:
         head, _ = os.path.split(path)
@@ -33,7 +33,7 @@ class Directory:
 
         hash_name = listing[name]
 
-        full_hash_name = os.path.join(self._root_path, hash_name)
+        full_hash_name = os.path.join(self._current_working_directory, hash_name)
         os.mkdir(full_hash_name)
         self._log.debug(f"Create directory {name} -> {full_hash_name}")
         self._listing.write(listing)
@@ -73,7 +73,7 @@ class Directory:
         if name not in listing:
             raise Exception(f"No directory named {name}")
 
-        full_path = os.path.join(self._root_path, listing[name])
+        full_path = os.path.join(self._current_working_directory, listing[name])
 
         if not recursive:
             os.rmdir(full_path)
@@ -88,5 +88,5 @@ class Directory:
             self._listing.remove()
 
     def cwd(self):
-        return self._root_path
+        return self._current_working_directory
         
