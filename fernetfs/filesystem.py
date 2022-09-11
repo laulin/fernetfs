@@ -22,6 +22,8 @@ class FileSystem():
         self._salt_size = salt_size
         self._sub_iterations = sub_iterations
 
+        self._log = logging.getLogger(f"FileSystem({root_path})")
+
         self._key = None
         self._salt = MasterSalt(secret, root_path, iterations, FileSystem.SALT_LENGTH)
 
@@ -78,12 +80,12 @@ class FileSystem():
         file = directory.get_file()
         return file.open(filename, mode)
 
-    def remove_file(self, path:str):
+    def remove_file(self, path:str)->None:
         directory, filename = self._get_directory(path)
         file = directory.get_file()
         file.rm(filename)
 
-    def remove_directory(self, path:str, recursive:bool=False):
+    def remove_directory(self, path:str, recursive:bool=False)->None:
         directory, directory_name = self._get_directory(path)
         directory.rm(directory_name, recursive)
 
@@ -92,6 +94,6 @@ class FileSystem():
         file = directory.get_file()
         return file.exists(filename)
 
-    def is_file_exist(self, path:str)->bool:
+    def is_directory_exist(self, path:str)->bool:
         directory, directoryname = self._get_directory(path)
         return directory.exists(directoryname)

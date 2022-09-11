@@ -87,6 +87,8 @@ class File():
             self._listing.write(listing)
             return False
 
+        self._log.debug(f"File {path} exists")
+
         return True
 
     def rm(self, filename:str)->None:
