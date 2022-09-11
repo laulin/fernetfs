@@ -72,19 +72,23 @@ class FileSystem():
 
         return directory, sub_dirs[-1]
 
+    def _get_file(self, directory:Directory)->File:
+        cwd = directory.cwd()
+        return File(self._key, cwd, self._sub_iterations, self._salt_size)
+
     def mkdir(self, path:str)->None:
         directory, last_dir = self._get_directory(path)
         directory.mkdir(last_dir)
 
     def open(self, path:str, mode:str)->File:
         directory, filename = self._get_directory(path)
-        file = directory.get_file()
+        file = self._get_file(directory)
         return file.open(filename, mode)
 
     def open_as_tmpfile(self, path:str, command:str):
         directory, filename = self._get_directory(path)
         cwd = directory.cwd()
-        file = directory.get_file()
+        file = self._get_file(directory)
         hashname = file.get_hash(filename)
         full_path = os.path.join(cwd, hashname)
         tmpfile = TmpFile(self._key, full_path, command, self._sub_iterations, self._salt_size)
@@ -92,7 +96,7 @@ class FileSystem():
 
     def remove_file(self, path:str)->None:
         directory, filename = self._get_directory(path)
-        file = directory.get_file()
+        file = self._get_file(directory)
         file.rm(filename)
 
     def remove_directory(self, path:str, recursive:bool=False)->None:
@@ -101,7 +105,7 @@ class FileSystem():
 
     def is_file_exist(self, path:str)->bool:
         directory, filename = self._get_directory(path)
-        file = directory.get_file()
+        file = self._get_file(directory)
         return file.exists(filename)
 
     def is_directory_exist(self, path:str)->bool:
@@ -110,7 +114,7 @@ class FileSystem():
 
     def ls(self, path:str)->dict:
         directory, _ = self._get_directory(path)
-        file = directory.get_file()
+        file = self._get_file(directory)
         output = {}
         for d in directory.ls():
             output[d] = "d"
