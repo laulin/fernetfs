@@ -10,6 +10,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from fernetfs.file import File
 from fernetfs.directory import Directory
 from fernetfs.mastersalt import MasterSalt
+from fernetfs.tmpfile import TmpFile
 
 
 class FileSystem():
@@ -79,6 +80,15 @@ class FileSystem():
         directory, filename = self._get_directory(path)
         file = directory.get_file()
         return file.open(filename, mode)
+
+    def open_as_tmpfile(self, path:str, command:str):
+        directory, filename = self._get_directory(path)
+        cwd = directory.cwd()
+        file = directory.get_file()
+        hashname = file.get_hash(filename)
+        full_path = os.path.join(cwd, hashname)
+        tmpfile = TmpFile(self._key, full_path, command, self._sub_iterations, self._salt_size)
+        return tmpfile
 
     def remove_file(self, path:str)->None:
         directory, filename = self._get_directory(path)

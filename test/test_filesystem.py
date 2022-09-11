@@ -170,3 +170,20 @@ class TestFileSystem(unittest.TestCase):
         results = fs.ls("/")
         expected = {'foobar': 'd', 'barfoo': 'd', 'test.txt': 'f', 'demo.txt': 'f'}
         self.assertDictEqual(results, expected)
+
+    def test_open_as_tmpfile(self):
+        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.create()
+
+        fs.mkdir("/foobar")
+        with fs.open("/foobar/test.txt", "w") as f:
+            f.write("read")
+
+        tmpfs = fs.open_as_tmpfile("/foobar/test.txt", "sed -i s/read/test/g")
+        tmpfs.run()
+
+        with fs.open("/foobar/test.txt", "r") as f:
+            results = f.read()
+
+        expected = "test"
+        self.assertEqual(results, expected)
