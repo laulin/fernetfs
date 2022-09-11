@@ -153,3 +153,20 @@ class TestFileSystem(unittest.TestCase):
 
         results = fs.is_directory_exist("foobar")
         self.assertFalse(results)
+
+    def test_ls(self):
+        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.create()
+
+        fs.mkdir("/foobar")
+        fs.mkdir("/barfoo")
+
+        with fs.open("test.txt", "w") as f:
+            f.write("")
+
+        with fs.open("demo.txt", "w") as f:
+            f.write("")
+
+        results = fs.ls("/")
+        expected = {'foobar': 'd', 'barfoo': 'd', 'test.txt': 'f', 'demo.txt': 'f'}
+        self.assertDictEqual(results, expected)

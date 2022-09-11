@@ -97,3 +97,15 @@ class FileSystem():
     def is_directory_exist(self, path:str)->bool:
         directory, directoryname = self._get_directory(path)
         return directory.exists(directoryname)
+
+    def ls(self, path:str)->dict:
+        directory, _ = self._get_directory(path)
+        file = directory.get_file()
+        output = {}
+        for d in directory.ls():
+            output[d] = "d"
+
+        for f in file.ls():
+            output[f] = "f"
+
+        return output
