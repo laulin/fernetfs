@@ -111,3 +111,15 @@ class File():
         else:
             self._listing.remove()
 
+    def get_hash(self, filename:str)->str:
+        listing = self._listing.get()
+
+        self.check_path(filename)
+
+        if filename not in listing:
+            self._log.debug(f"File {filename} has no hash")
+            raise Exception(f"File {filename} has no hash")
+        
+        hash_name = listing[filename]
+
+        return hash_name
