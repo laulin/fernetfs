@@ -126,3 +126,30 @@ class TestFileSystem(unittest.TestCase):
 
         results = fs.is_file_exist("test.txt")
         self.assertFalse(results)
+
+    def test_is_directory_exist(self):
+        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.create()
+
+        fs.mkdir("/foobar")
+
+        results = fs.is_directory_exist("foobar")
+        self.assertTrue(results)
+
+    def test_is_directory_exist_in_dir(self):
+        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.create()
+
+        fs.mkdir("/foobar")
+        fs.mkdir("/foobar/barfoo")
+        
+
+        results = fs.is_directory_exist("foobar/barfoo")
+        self.assertTrue(results)
+
+    def test_is_directory_not_exist(self):
+        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.create()
+
+        results = fs.is_directory_exist("foobar")
+        self.assertFalse(results)
