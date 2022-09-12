@@ -6,53 +6,61 @@ import glob
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.fernet import InvalidToken
 
 from fernetfs.file import File
 from fernetfs.directory import Directory
-from fernetfs.mastersalt import MasterSalt
+from fernetfs.masterconfiguration import MasterConfiguration
 from fernetfs.tmpfile import TmpFile
 
 
 class FileSystem():
     KEY_LENGTH = 256
     SALT_LENGTH = 256
-    def __init__(self, secret:bytes, root_path:str, iterations:int = 480000, salt_size=16, sub_iterations:int = 48000):
-        self._secret = secret
-        self._root_path = root_path
-        self._iterations = iterations
-        self._salt_size = salt_size
-        self._sub_iterations = sub_iterations
-
-        self._log = logging.getLogger(f"FileSystem({root_path})")
-
+    def __init__(self):
+        self._current_working_directory = None
+        self._salt_size = None
+        self._sub_iterations = None
         self._key = None
-        self._salt = MasterSalt(secret, root_path, iterations, FileSystem.SALT_LENGTH)
 
-    def iscreated(self)->bool:
-        return self._salt.exists()
+        self._master_conf = MasterConfiguration(FileSystem.SALT_LENGTH)
 
-    def create(self)->None:
-        path = os.path.join(self._root_path, "*")
+        self._log = logging.getLogger(f"FileSystem(unmounted)")
+
+    def create(self, secret:bytes, current_working_directory:str, iterations:int=480000, salt_size=16, sub_iterations:int=48000)->None:
+        path = os.path.join(current_working_directory, "*")
         ls_destination = list(glob.glob(path))
 
         if len(ls_destination) > 0:
             raise Exception("Mounting point is not empty")
 
-        self._salt.create()
-        self.mount()
+        self._master_conf.create(secret, current_working_directory, iterations, salt_size, sub_iterations)
 
-    def mount(self)->None:
-        if not self.iscreated():
-            raise Exception(f"File system at {self._root_path} doesn't exist")
+    def mount(self, secret:bytes, current_working_directory:str, iterations:int=480000)->None:
+        
+        try:
+            conf = self._master_conf.get(secret, current_working_directory, iterations)
+        except FileNotFoundError as e:
+            self._log.error(f"{current_working_directory} is not a valid fs ! ")
+            raise e
+        except InvalidToken as e:
+            self._log.error(f"Password is invalid !")
+            raise e
+        
+        self._current_working_directory = current_working_directory
+        self._salt_size = conf["salt_size"]
+        self._sub_iterations = conf["sub_iterations"]
+        salt = conf["salt"]
 
-        salt = self._salt.get()
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=FileSystem.KEY_LENGTH,
             salt=salt,
-            iterations=self._iterations,
+            iterations=iterations,
         )
-        self._key = kdf.derive(self._secret)
+        self._key = kdf.derive(secret)
+
+        self._log = logging.getLogger(f"FileSystem({current_working_directory})")
 
     def _split_path(self, path:str)->list:
         if path.startswith("/"):
@@ -61,8 +69,8 @@ class FileSystem():
         return list(path.split("/"))
 
     def _get_directory(self, relative_path:Str)->Directory:
-        path = self._root_path
-        directory = Directory(self._key, self._root_path, self._sub_iterations, self._salt_size)
+        path = self._current_working_directory
+        directory = Directory(self._key, self._current_working_directory, self._sub_iterations, self._salt_size)
 
         sub_dirs = self._split_path(relative_path)
         for sub_dir in sub_dirs[:-1]:

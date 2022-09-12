@@ -22,42 +22,63 @@ class TestFileSystem(unittest.TestCase):
         shutil.rmtree(WORKING_DIR)
 
     def test_create(self)->dict:
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS)
+        fs = FileSystem()
 
-        fs.create()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS)
 
-    def test_iscreated(self)->dict:
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS)
+    def test_mount(self)->dict:
+        fs = FileSystem()
 
-        fs.create()
-        results = fs.iscreated()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
-        self.assertTrue(results)
+    def test_miss_mount(self)->dict:
+        fs = FileSystem()
+
+        try:
+            fs.mount(SECRET, WORKING_DIR, ITERATIONS)
+            self.assertTrue(False)
+        except:
+            pass
+
+    def test_mount_bad_secret(self)->dict:
+        fs = FileSystem()
+
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        try:
+            fs.mount(b"SECRET", WORKING_DIR, ITERATIONS)
+            self.assertTrue(False)
+        except:
+            pass
 
     def test_mkdir(self)->dict:
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs = FileSystem()
 
-        fs.create()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
         fs.mkdir("foobar")
 
     def test_mkdir_1_child(self)->dict:
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs = FileSystem()
 
-        fs.create()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
         fs.mkdir("foobar")
         fs.mkdir("/foobar/hhh")
 
     def test_mkdir_2_child(self)->dict:
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs = FileSystem()
 
-        fs.create()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
         fs.mkdir("foobar")
         fs.mkdir("/foobar/hhh")
         fs.mkdir("foobar/hhh/aaaa")
 
     def test_open(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         with fs.open("test.txt", "w") as f:
             f.write("demo")
@@ -69,8 +90,9 @@ class TestFileSystem(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_open_in_dir(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         fs.mkdir("/foobar")
 
@@ -84,8 +106,9 @@ class TestFileSystem(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_remove_file(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         with fs.open("test.txt", "w") as f:
             f.write("demo")
@@ -93,16 +116,18 @@ class TestFileSystem(unittest.TestCase):
         fs.remove_file("test.txt")
 
     def test_remove_directory(self)->dict:
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs = FileSystem()
 
-        fs.create()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
         fs.mkdir("foobar")
 
         fs.remove_directory("foobar")
 
     def test_is_file_exist(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         with fs.open("test.txt", "w") as f:
             f.write("")
@@ -111,8 +136,9 @@ class TestFileSystem(unittest.TestCase):
         self.assertTrue(results)
 
     def test_is_file_exist_in_dir(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         fs.mkdir("/foobar")
         with fs.open("foobar/test.txt", "w") as f:
@@ -121,15 +147,17 @@ class TestFileSystem(unittest.TestCase):
         self.assertTrue(results)
 
     def test_is_file_not_exist(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         results = fs.is_file_exist("test.txt")
         self.assertFalse(results)
 
     def test_is_directory_exist(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         fs.mkdir("/foobar")
 
@@ -137,8 +165,9 @@ class TestFileSystem(unittest.TestCase):
         self.assertTrue(results)
 
     def test_is_directory_exist_in_dir(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         fs.mkdir("/foobar")
         fs.mkdir("/foobar/barfoo")
@@ -148,15 +177,17 @@ class TestFileSystem(unittest.TestCase):
         self.assertTrue(results)
 
     def test_is_directory_not_exist(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         results = fs.is_directory_exist("foobar")
         self.assertFalse(results)
 
     def test_ls(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         fs.mkdir("/foobar")
         fs.mkdir("/barfoo")
@@ -172,8 +203,9 @@ class TestFileSystem(unittest.TestCase):
         self.assertDictEqual(results, expected)
 
     def test_open_as_tmpfile(self):
-        fs = FileSystem(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
-        fs.create()
+        fs = FileSystem()
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
 
         fs.mkdir("/foobar")
         with fs.open("/foobar/test.txt", "w") as f:

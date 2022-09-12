@@ -28,7 +28,17 @@ class TestMasterConfiguration(unittest.TestCase):
         conf = MasterConfiguration()
 
         conf.create(SECRET, WORKING_DIR, ITERATIONS)
-        results = list(conf.get().keys())
-        expected = ["salt", "iterations", "salt_size", "sub_iterations"]
+        results = list(conf.get(SECRET, WORKING_DIR, ITERATIONS).keys())
+        expected = ["salt", "salt_size", "sub_iterations"]
 
-        self.assertListEqual(results, expected)    
+        self.assertListEqual(results, expected)
+
+    def test_create_directory_listing(self):
+        conf = MasterConfiguration()
+
+        conf.create(SECRET, WORKING_DIR, ITERATIONS)    
+        try:
+            conf.create(SECRET, WORKING_DIR, ITERATIONS)    
+            self.assertTrue(False)
+        except:
+            pass
