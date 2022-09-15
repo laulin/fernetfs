@@ -39,4 +39,35 @@ class TestTmpFile(unittest.TestCase):
 
         print(result)
 
+    def test_read_with(self):
+        with BasicFile(WORKING_FILE, SECRET, "w", ITERATIONS) as f:
+            f.write("test_read_utf8")
+
+        tmp = TmpFile(SECRET,WORKING_FILE, "", ITERATIONS)
+
+        with tmp as filename:
+            with open(filename, "r") as f:
+                results = f.read()
+
+        expected = "test_read_utf8"
+
+        self.assertEqual(results, expected)
+
+    def test_write_with(self):
+        with BasicFile(WORKING_FILE, SECRET, "w", ITERATIONS) as f:
+            f.write("")
+
+        tmp = TmpFile(SECRET,WORKING_FILE, "", ITERATIONS)
+
+        with tmp as filename:
+            with open(filename, "w") as f:
+                f.write("test_read_utf8")
+
+        with BasicFile(WORKING_FILE, SECRET, "r", ITERATIONS) as f:
+            results = f.read()
+
+        expected = "test_read_utf8"
+
+        self.assertEqual(results, expected)
+
 

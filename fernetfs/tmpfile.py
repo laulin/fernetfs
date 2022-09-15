@@ -36,6 +36,8 @@ class TmpFile:
 
         self._running = False
 
+        self._decrypted_path = None
+
 
     def decrypt(self):
         """
@@ -137,3 +139,21 @@ class TmpFile:
         finally:
             os.unlink(path)
             self._log.debug(f"Unkink RAM file {path}")
+
+    def __enter__(self):
+        decrypted = self.decrypt()
+
+        fd, path = mkstemp(dir=RAMFS, suffix=".plain")
+        self._log.debug(f"Create RAM file {path}")
+        with os.fdopen(fd, 'wb') as f:
+            f.write(decrypted)
+            f.flush()
+        self._log.debug(f"Add plain data to RAM file {path}")
+        self._decrypted_path = path
+        return path
+     
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.encrypt(self._decrypted_path)
+        os.unlink(self._decrypted_path)
+        self._log.debug(f"Unkink RAM file {self._decrypted_path}")
+        self._log.debug(f"Encrypted write back")
