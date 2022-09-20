@@ -34,6 +34,7 @@ class TmpFile:
         self._running = False
 
         self._decrypted_path = None
+        self._fd = None
 
 
     def decrypt(self):
@@ -147,10 +148,13 @@ class TmpFile:
             f.flush()
         self._log.debug(f"Add plain data to RAM file {path}")
         self._decrypted_path = path
+        self._fd = fd
         return path
      
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.encrypt(self._decrypted_path)
         os.unlink(self._decrypted_path)
+        self._fd.close()
+        self._fd = None
         self._log.debug(f"Unkink RAM file {self._decrypted_path}")
         self._log.debug(f"Encrypted write back")
