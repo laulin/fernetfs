@@ -67,6 +67,28 @@ class TestFile(unittest.TestCase):
         expected = []
         self.assertEqual(result, expected)
 
+    def test_rm_2(self)->dict:
+        directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
+
+        directory.mkdir("foobar")
+        directory.rm("foobar/")
+
+        result = directory.ls()
+
+        expected = []
+        self.assertEqual(result, expected)
+
+    def test_rm_3(self)->dict:
+        directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
+
+        directory.mkdir("foobar")
+        directory.rm("/foobar")
+
+        result = directory.ls()
+
+        expected = []
+        self.assertEqual(result, expected)
+
     def test_rm_not_empty(self)->dict:
         directory = Directory(SECRET, WORKING_DIR, ITERATIONS)
 

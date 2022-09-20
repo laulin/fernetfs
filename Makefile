@@ -8,4 +8,4 @@ clean:
 	rm -rf build/ dist/
 
 tests:
-	python3 -m unittest discover -s test #-p "test_file.py"
+	python3 -m unittest discover -s test -p "test_filesystem.py"

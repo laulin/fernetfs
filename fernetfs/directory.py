@@ -14,15 +14,24 @@ class Directory:
         self._listing = ListingDirectory(secret, current_working_directory, iterations, salt_size)
 
     def check_path(self, path:str)->None:
-        head, _ = os.path.split(path)
+        if path.endswith("/"):
+            path = path[:-1]
+
+        if path.startswith("/"):
+            path = path[1:]
+
+        head, tail = os.path.split(path)
 
         if head != "" :
             raise Exception("File must be in the current directory")
 
+        return path
+
+
     def mkdir(self, name:str)->str:
         listing = self._listing.get()
 
-        self.check_path(name)
+        name = self.check_path(name)
 
         if name in listing:
             raise OSError(f"Directory {name} already exists")
@@ -45,7 +54,7 @@ class Directory:
     def gethash(self, name:str)->str:
         listing = self._listing.get()
 
-        self.check_path(name)
+        name = self.check_path(name)
 
         if name not in listing:
             raise Exception(f"No directory named {name}")
@@ -57,7 +66,7 @@ class Directory:
     def exists(self, name:str)->bool:
         listing = self._listing.get()
 
-        self.check_path(name)
+        name = self.check_path(name)
 
         if name not in listing:
             return False
@@ -66,7 +75,7 @@ class Directory:
     def rm(self, name, recursive=False)->None:
         listing = self._listing.get()
 
-        self.check_path(name)
+        name = self.check_path(name)
 
         if name not in listing:
             raise Exception(f"No directory named {name}")

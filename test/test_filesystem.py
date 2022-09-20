@@ -124,6 +124,15 @@ class TestFileSystem(unittest.TestCase):
 
         fs.remove_directory("foobar")
 
+    def test_remove_directory_2(self)->dict:
+        fs = FileSystem()
+
+        fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
+        fs.mount(SECRET, WORKING_DIR, ITERATIONS)
+        fs.mkdir("foobar")
+
+        fs.remove_directory("foobar/")
+
     def test_is_file_exist(self):
         fs = FileSystem()
         fs.create(SECRET, WORKING_DIR, ITERATIONS, SALT, ITERATIONS)
