@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
  
 setup(name='fernetfs',
-    version='1.0.0',
+    version='1.1.0',
     url='https://github.com/laulin/fernetfs',
     license='Apachev2',
     author='Laurent MOULIN',
