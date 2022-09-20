@@ -11,7 +11,7 @@ from fernetfs.primitives import Primitives
 RAMFS = "/dev/shm"
 
 class TmpFile:
-    def __init__(self, secret:bytes, filename:str, editor:str, iterations:int=480000, salt_size=16):
+    def __init__(self, secret:bytes, filename:str, iterations:int=480000, salt_size=16):
         """
         `__init__` is a function that takes in a secret, a filename, an editor, and two optional
         arguments (iterations and salt_size) and sets the values of the class variables `_primitives`,
@@ -21,8 +21,6 @@ class TmpFile:
         :type secret: bytes
         :param filename: The name of the file to be encrypted
         :type filename: str
-        :param editor: The editor to use
-        :type editor: str
         :param iterations: The number of iterations to use when generating the key, defaults to 480000
         :type iterations: int (optional)
         :param salt_size: The size of the salt to use. The default is 16 bytes, which is 128 bits,
@@ -31,7 +29,6 @@ class TmpFile:
         
         self._primitives = Primitives(secret, iterations, salt_size)
         self._filename = filename
-        self._editor = editor
         self._log = logging.getLogger(f"TmpFile({filename})")
 
         self._running = False
@@ -102,7 +99,7 @@ class TmpFile:
                         self.encrypt(watch_path)
 
 
-    def run(self):
+    def run(self, command:str):
         """
         It creates a temporary file in RAMFS, write the decrypted content of the file, run the editor
         on it, and when the editor is closed, it re-encrypt the file and delete the temporary file
@@ -125,10 +122,10 @@ class TmpFile:
                 write_back_thread.start()
                 self._log.debug(f"inotify is running")
 
-                self._log.debug(f"Running command '{self._editor} {path}'")
-                os.system(f"{self._editor} {path}")
+                self._log.debug(f"Running command '{command} {path}'")
+                os.system(f"{command} {path}")
                 # stopping the write back thread
-                self._log.debug(f"End of command '{self._editor} {path}'")
+                self._log.debug(f"End of command '{command} {path}'")
                 self._running = False
 
             self.encrypt(path)

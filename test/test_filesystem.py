@@ -220,8 +220,8 @@ class TestFileSystem(unittest.TestCase):
         with fs.open("/foobar/test.txt", "w") as f:
             f.write("read")
 
-        tmpfs = fs.open_as_tmpfile("/foobar/test.txt", "sed -i s/read/test/g")
-        tmpfs.run()
+        tmpfs = fs.open_as_tmpfile("/foobar/test.txt")
+        tmpfs.run("sed -i s/read/test/g")
 
         with fs.open("/foobar/test.txt", "r") as f:
             results = f.read()

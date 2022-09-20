@@ -66,6 +66,9 @@ class FileSystem():
         if path.startswith("/"):
             path = path[1:]
 
+        if path.endswith("/"):
+            path = path[:-1]
+
         return list(path.split("/"))
 
     def _get_directory(self, relative_path:Str)->Directory:
@@ -93,13 +96,13 @@ class FileSystem():
         file = self._get_file(directory)
         return file.open(filename, mode)
 
-    def open_as_tmpfile(self, path:str, command:str):
+    def open_as_tmpfile(self, path:str):
         directory, filename = self._get_directory(path)
         cwd = directory.cwd()
         file = self._get_file(directory)
         hashname = file.get_hash(filename)
         full_path = os.path.join(cwd, hashname)
-        tmpfile = TmpFile(self._key, full_path, command, self._sub_iterations, self._salt_size)
+        tmpfile = TmpFile(self._key, full_path, self._sub_iterations, self._salt_size)
         return tmpfile
 
     def remove_file(self, path:str)->None:
